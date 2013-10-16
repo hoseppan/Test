@@ -1,0 +1,44 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Aug 14 13:20:21 2013
+
+@author: henkka, hoseppan@gmail.com
+
+
+PLSR_class_HS
+Purpose of this class is to provide similar functionality
+for partial least square regression than in matlab
+
+
+
+"""
+######################### IMPORT SECTION ###########################
+
+from sklearn.cross_decomposition import PLSRegression
+import scipy.io
+import numpy as np
+import pylab as pl
+import random
+#import time
+from datetime import datetime
+
+
+######################### FUNCTIONS ##################################
+
+#######################
+# PLSR leave one out model
+def plsr_one_out_HS(X, y, ncomp = 5):
+    y_pred = []
+
+    for i in range(len(y)):
+
+        X_train = np.delete(X,i,axis=0) # Delete one row from train X-set
+        X_test = X[i:i+1] # Use one deleted row as test X-set
+        y_train = np.delete(y,i,axis=0)    # Set train y-set
+  
+        plsr = PLSRegression(n_components=ncomp, max_iter=500, tol=1e-09)
+        plsr.fit(X_train, y_train)
+
+        # Insert predicted value into the y_pred. Remove double array structure
+        y_pred.insert(i, np.concatenate(plsr.predict(X_test),axis=1))
+    return y_pred
